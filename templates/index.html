@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>诗意生成器 - 商务版</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Serif SC', serif;
+            background-color: #f8f9fa;
+        }
+        .poem-container {
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn-generate {
+            background: linear-gradient(135deg, #1a365d 0%, #2d3748 100%);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .btn-generate:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(45, 55, 72, 0.3);
+        }
+        .btn-generate:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        .btn-generate .loading-spinner {
+            display: none;
+            margin-left: 0.5rem;
+        }
+        .btn-generate.loading .loading-spinner {
+            display: inline-block;
+        }
+        .loading-spinner {
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .loading-overlay.active {
+            display: flex;
+        }
+        .loading-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .loading-text {
+            margin-top: 1rem;
+            color: #4a5568;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay">
+        <div class="loading-card">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">正在创作诗歌，请稍候...</div>
+        </div>
+    </div>
+
+    <div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-3xl mx-auto">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">诗意生成器</h1>
+                <p class="text-xl text-gray-600">让AI为您创作优美的诗篇</p>
+            </div>
+            
+            <div class="poem-container rounded-lg p-8 mb-8">
+                <div class="mb-6">
+                    <label for="start_text" class="block text-sm font-medium text-gray-700 mb-2">诗歌开头</label>
+                    <textarea id="start_text" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none" placeholder="请输入诗歌的开头..."></textarea>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">创作温度</label>
+                    <input type="range" id="temperature" min="0.1" max="1.0" step="0.1" value="0.7" class="w-full">
+                    <div class="flex justify-between text-sm text-gray-500">
+                        <span>理性 0.1</span>
+                        <span>平衡 0.7</span>
+                        <span>创意 1.0</span>
+                    </div>
+                </div>
+
+                <button onclick="generatePoem()" id="generateBtn" class="btn-generate w-full py-3 text-white rounded-md font-medium flex items-center justify-center">
+                    <span>生成诗歌</span>
+                    <div class="loading-spinner"></div>
+                </button>
+            </div>
+
+            <div id="result" class="poem-container rounded-lg p-8 hidden">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">生成结果</h2>
+                <div id="poem_text" class="text-lg text-gray-700 whitespace-pre-line"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function generatePoem() {
+            const startText = document.getElementById('start_text').value;
+            const temperature = document.getElementById('temperature').value;
+            const resultDiv = document.getElementById('result');
+            const poemText = document.getElementById('poem_text');
+            const generateBtn = document.getElementById('generateBtn');
+            const loadingOverlay = document.querySelector('.loading-overlay');
+            
+            // 显示加载状态
+            generateBtn.disabled = true;
+            generateBtn.classList.add('loading');
+            loadingOverlay.classList.add('active');
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        start_text: startText,
+                        temperature: parseFloat(temperature)
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.classList.remove('hidden');
+                    poemText.textContent = data.poem;
+                } else {
+                    alert('生成失败：' + data.error);
+                }
+            } catch (error) {
+                alert('发生错误：' + error.message);
+            } finally {
+                // 隐藏加载状态
+                generateBtn.disabled = false;
+                generateBtn.classList.remove('loading');
+                loadingOverlay.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html> 
