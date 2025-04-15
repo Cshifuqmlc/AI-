@@ -1,3 +1,0 @@
-gpt2-chinese-poem/**/* filter=lfs diff=lfs merge=lfs -text
-*.txt filter=lfs diff=lfs merge=lfs -text
-requirements.txt !text !filter !merge !diff
