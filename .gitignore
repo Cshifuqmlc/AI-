@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+.env
+
+# Git LFS
+.git/lfs
+.gitattributes
+
+# Model files
+gpt2-chinese-poem/
+*.bin
+*.json
+*.txt
+!requirements.txt
+
+# Vercel
+.vercel 

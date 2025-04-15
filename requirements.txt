@@ -1,8 +1,5 @@
-version https://git-lfs.github.com/spec/v1
-<<<<<<< HEAD
-oid sha256:9347da108b480045f98bb1744fab4f0f0ae48e73bb614572e9fdea07cd560aea
-size 110
-=======
-oid sha256:b530f5970088a08ebcd35ad41afed78ebad212d088aa0df1ebabfbca57d3f5f4
-size 86
->>>>>>> 8602e0655301a4cc062beff92265f9ce1262bab7
+flask>=2.0.0,<3.0.0
+werkzeug>=2.0.0,<3.0.0
+transformers>=4.30.0,<5.0.0
+torch>=1.9.0
+requests>=2.25.0
